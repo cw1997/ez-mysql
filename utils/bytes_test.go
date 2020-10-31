@@ -48,7 +48,7 @@ func TestByteSliceToInt(t *testing.T) {
 
 	for _, v := range testCase {
 		actual := ByteSliceToInt(v.input)
-		except := int64(v.except)
+		except := uint64(v.except)
 		if actual != except {
 			t.Errorf("input: [%+v], actual: [%+v], except: [%+v] \n", v.input, actual, except)
 		}
@@ -97,7 +97,7 @@ func TestIntToByteSlice(t *testing.T) {
 	}
 
 	for _, v := range testCase {
-		actual := IntToByteSlice(int64(v.input))
+		actual := IntToByteSlice(uint64(v.input))
 		except := v.except
 		if !bytes.Equal(actual, except) {
 			t.Errorf("input: [%+v], actual: [%+v], except: [%+v] \n", v.input, actual, except)
