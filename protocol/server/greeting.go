@@ -1,25 +1,25 @@
-package protocol
+package server
 
 import (
 	"bytes"
 
-	"../utils"
+	"../../utils"
 )
 
 /**
-Frame 10: 146 bytes on wire (1168 bits), 146 bytes captured (1168 bits) on interface \Device\NPF_{BAE96026-D11F-49BB-85DB-B449B9D765C2}, id 0
+Frame 38: 126 bytes on wire (1008 bits), 126 bytes captured (1008 bits)
 Null/Loopback
-Internet Protocol Version 6, Src: ::1, Dst: ::1
-Transmission Control Protocol, Src Port: 3306, Dst Port: 11276, Seq: 1, Ack: 1, Len: 82
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 3306, Dst Port: 4447, Seq: 1, Ack: 1, Len: 82
 MySQL Protocol
     Packet Length: 78
     Packet Number: 0
     Server Greeting
         Protocol: 10
-        Version: 5.7.26-log
-        Thread ID: 8
-        Salt: MW}\024\005\030nb
-        Server Capabilities: 0xf7ff
+        Version: 5.7.30-log
+        Thread ID: 11
+        Salt: lr;&\025?K*
+        Server Capabilities: 0xffff
             .... .... .... ...1 = Long Password: Set
             .... .... .... ..1. = Found Rows: Set
             .... .... .... .1.. = Long Column Flags: Set
@@ -31,12 +31,12 @@ MySQL Protocol
             .... ...1 .... .... = Ignore Spaces before '(': Set
             .... ..1. .... .... = Speaks 4.1 protocol (new flag): Set
             .... .1.. .... .... = Interactive Client: Set
-            .... 0... .... .... = Switch to SSL after handshake: Not set
+            .... 1... .... .... = Switch to SSL after handshake: Set
             ...1 .... .... .... = Ignore sigpipes: Set
             ..1. .... .... .... = Knows about transactions: Set
             .1.. .... .... .... = Speaks 4.1 protocol (old flag): Set
             1... .... .... .... = Can do 4.1 authentication: Set
-        Server Language: utf8 COLLATE utf8_unicode_ci (192)
+        Server Language: latin1 COLLATE latin1_swedish_ci (8)
         Server Status: 0x0002
             .... .... .... ...0 = In transaction: Not set
             .... .... .... ..1. = AUTO_COMMIT: Set
@@ -53,7 +53,7 @@ MySQL Protocol
             ...0 .... .... .... = PS Out Params: Not set
             ..0. .... .... .... = In Trans Readonly: Not set
             .0.. .... .... .... = Session state changed: Not set
-        Extended Server Capabilities: 0x81ff
+        Extended Server Capabilities: 0xc1ff
             .... .... .... ...1 = Multiple statements: Set
             .... .... .... ..1. = Multiple results: Set
             .... .... .... .1.. = PS Multiple results: Set
@@ -63,10 +63,10 @@ MySQL Protocol
             .... .... .1.. .... = Client can handle expired passwords: Set
             .... .... 1... .... = Session variable tracking: Set
             .... ...1 .... .... = Deprecate EOF: Set
-            1000 000. .... .... = Unused: 0x40
+            1100 000. .... .... = Unused: 0x60
         Authentication Plugin Length: 21
         Unused: 00000000000000000000
-        Salt: \036e6~3\001|A5\027x\r
+        Salt: P@g\030lH*Orn,\021
         Authentication Plugin: mysql_native_password
 
 */
