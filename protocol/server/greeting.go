@@ -76,6 +76,7 @@ type Greeting struct {
 	Version              string
 	ThreadId             uint32
 	Salt                 []byte
+	// padding 1 byte : 0x00
 	ServerCapabilities   uint16
 	ServerLanguage       uint8
 	ServerStatus         uint16
@@ -94,6 +95,7 @@ func (packet *Greeting) Build() []byte {
 	buffer.WriteByte(0)
 	buffer.Write(utils.IntToByteSlice(uint64(packet.ThreadId))[0:4])
 	buffer.Write(packet.Salt[:])
+	buffer.WriteByte(0)
 	buffer.Write(utils.IntToByteSlice(uint64(packet.ServerCapabilities))[0:2])
 	buffer.Write(utils.IntToByteSlice(uint64(packet.ServerLanguage))[0:1])
 	buffer.Write(utils.IntToByteSlice(uint64(packet.ServerStatus))[0:2])
