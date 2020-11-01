@@ -7,7 +7,7 @@ import (
 )
 
 func TestBuild(t *testing.T) {
-	input := new(ServerGreetingPacket)
+	input := new(Greeting)
 	input.Protocol = 10
 	input.Version = "5.7.26-log"
 	input.ThreadId = 8
@@ -59,10 +59,10 @@ func TestResolve(t *testing.T) {
 		0x73, 0x77, 0x6f, 0x72, 0x64, 0x00,
 	}
 
-	actual := new(ServerGreetingPacket)
+	actual := new(Greeting)
 	actual.Resolve(input)
 
-	except := new(ServerGreetingPacket)
+	except := new(Greeting)
 	except.Protocol = 10
 	except.Version = "5.7.26-log"
 	except.ThreadId = 8

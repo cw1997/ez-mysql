@@ -71,7 +71,7 @@ MySQL Protocol
 
 */
 
-type ServerGreetingPacket struct {
+type Greeting struct {
 	Protocol             byte
 	Version              string
 	ThreadId             uint32
@@ -87,7 +87,7 @@ type ServerGreetingPacket struct {
 	AuthenticationPlugin       string
 }
 
-func (packet *ServerGreetingPacket) Build() []byte {
+func (packet *Greeting) Build() []byte {
 	buffer := bytes.NewBuffer([]byte{})
 	buffer.WriteByte(packet.Protocol)
 	buffer.WriteString(packet.Version)
@@ -106,7 +106,7 @@ func (packet *ServerGreetingPacket) Build() []byte {
 	return buffer.Bytes()
 }
 
-func (packet *ServerGreetingPacket) Resolve(byteSlice []byte) {
+func (packet *Greeting) Resolve(byteSlice []byte) {
 	buffer := bytes.NewBuffer(byteSlice)
 	packet.Protocol = buffer.Next(1)[0]
 	version, _ := buffer.ReadString(0)
