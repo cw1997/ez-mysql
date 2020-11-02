@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestBuild(t *testing.T) {
+func TestResponseOKBuild(t *testing.T) {
 	input := new(ResponseOK)
 	input.ResponseCode = 0x00
 	input.AffectedRows = 0
@@ -24,7 +24,7 @@ func TestBuild(t *testing.T) {
 	}
 }
 
-func TestResolve(t *testing.T) {
+func TestResponseOKResolve(t *testing.T) {
 	input := []byte{
 		0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00,
 	}

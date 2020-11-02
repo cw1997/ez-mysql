@@ -47,20 +47,20 @@ type ResponseOK struct {
 
 func (packet *ResponseOK) Build() []byte {
 	buffer := bytes.NewBuffer([]byte{})
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ResponseCode))[0:1])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.AffectedRows))[0:1])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.LastInsertID))[0:1])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ServerStatus))[0:2])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.Warnings	))[0:2])
+	utils.WriteInteger(buffer, 1, uint64(packet.ResponseCode))
+	utils.WriteInteger(buffer, 1, uint64(packet.AffectedRows))
+	utils.WriteInteger(buffer, 1, uint64(packet.LastInsertID))
+	utils.WriteInteger(buffer, 2, uint64(packet.ServerStatus))
+	utils.WriteInteger(buffer, 2, uint64(packet.Warnings))
 	return buffer.Bytes()
 }
 
 func (packet *ResponseOK) Resolve(byteSlice []byte) {
 	buffer := bytes.NewBuffer(byteSlice)
-	packet.ResponseCode = 	uint8(utils.ByteSliceToInt(buffer.Next(8 / 8)))
-	packet.AffectedRows = 	uint8(utils.ByteSliceToInt(buffer.Next(8 / 8)))
-	packet.LastInsertID = 	int8(utils.ByteSliceToInt(buffer.Next(8 / 8)))
-	packet.ServerStatus = 	uint16(utils.ByteSliceToInt(buffer.Next(16 / 8)))
-	packet.Warnings = 		uint16(utils.ByteSliceToInt(buffer.Next(16 / 8)))
+	packet.ResponseCode = 	uint8(utils.ReadInteger(buffer, 1))
+	packet.AffectedRows = 	uint8(utils.ReadInteger(buffer, 1))
+	packet.LastInsertID = 	int8(utils.ReadInteger(buffer, 1))
+	packet.ServerStatus = 	uint16(utils.ReadInteger(buffer, 2))
+	packet.Warnings = 		uint16(utils.ReadInteger(buffer, 2))
 }
 
