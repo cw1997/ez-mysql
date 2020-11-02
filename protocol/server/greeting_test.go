@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestBuild(t *testing.T) {
+func TestGreetingBuild(t *testing.T) {
 	input := new(Greeting)
 	input.Protocol = 10
 	input.Version = "5.7.26-log"
@@ -20,7 +20,7 @@ func TestBuild(t *testing.T) {
 	input.Reverse = make([]byte, 10)
 	input.ExtendedSalt = []byte{
 		0x1e, 0x65, 0x36, 0x7e, 0x33, 0x01, 0x7c, 0x41,
-		0x35, 0x17, 0x78, 0x0d, 0x00,
+		0x35, 0x17, 0x78, 0x0d,
 	}
 	input.AuthenticationPlugin = "mysql_native_password"
 
@@ -43,7 +43,7 @@ func TestBuild(t *testing.T) {
 	}
 }
 
-func TestResolve(t *testing.T) {
+func TestGreetingResolve(t *testing.T) {
 	input := []byte{
 		0x0a, 0x35, 0x2e, 0x37, 0x2e, 0x32, 0x36, 0x2d,
 		0x6c, 0x6f, 0x67, 0x00, 0x08, 0x00, 0x00, 0x00,
@@ -73,7 +73,7 @@ func TestResolve(t *testing.T) {
 	except.Reverse = make([]byte, 10)
 	except.ExtendedSalt = []byte{
 		0x1e, 0x65, 0x36, 0x7e, 0x33, 0x01, 0x7c, 0x41,
-		0x35, 0x17, 0x78, 0x0d, 0x00,
+		0x35, 0x17, 0x78, 0x0d,
 	}
 	except.AuthenticationPlugin = "mysql_native_password"
 

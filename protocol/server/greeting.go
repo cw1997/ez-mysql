@@ -103,6 +103,8 @@ func (packet *Greeting) Build() []byte {
 	buffer.Write(utils.IntToByteSlice(uint64(packet.ExtendedSaltLength))[0:1])
 	buffer.Write(packet.Reverse[:])
 	buffer.Write(packet.ExtendedSalt)
+	// write the salt end of 0
+	buffer.WriteByte(0)
 	buffer.WriteString(packet.AuthenticationPlugin)
 	buffer.WriteByte(0)
 	return buffer.Bytes()
@@ -123,7 +125,9 @@ func (packet *Greeting) Resolve(byteSlice []byte) {
 	packet.ExtendedServerStatus = uint16(utils.ByteSliceToInt(buffer.Next(16 / 8)))
 	packet.ExtendedSaltLength = uint8(utils.ByteSliceToInt(buffer.Next(8 / 8)))
 	packet.Reverse = buffer.Next(10)
-	packet.ExtendedSalt = buffer.Next(int(packet.ExtendedSaltLength - 8))
-	authenticationPlugin, _ := buffer.ReadString(0)
-	packet.AuthenticationPlugin = authenticationPlugin[:len(authenticationPlugin)-1]
+	// packet.ExtendedSaltLength - 8 - 1, skip the end of 0
+	packet.ExtendedSalt = buffer.Next(int(packet.ExtendedSaltLength - 8 - 1))
+	//skip the end of 0
+	buffer.Next(1)
+	packet.AuthenticationPlugin = utils.ReadNullTerminatedString(buffer)
 }
