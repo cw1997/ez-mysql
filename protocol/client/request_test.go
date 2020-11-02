@@ -1,4 +1,4 @@
-package server
+package client
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestBuild(t *testing.T) {
+func TestRequestBuild(t *testing.T) {
 	input := new(Request)
 	input.Command = 3
 	input.Statement = "select version()"
@@ -23,7 +23,7 @@ func TestBuild(t *testing.T) {
 	}
 }
 
-func TestResolve(t *testing.T) {
+func TestRequestResolve(t *testing.T) {
 	input := []byte{
 		0x03, 0x73, 0x65, 0x6c, 0x65, 0x63, 0x74, 0x20,
 		0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x28,
@@ -31,7 +31,7 @@ func TestResolve(t *testing.T) {
 	}
 
 	actual := new(Request)
-	actual.Resolve(input, 17)
+	actual.Resolve(input)
 
 	except := new(Request)
 	except.Command = 3
