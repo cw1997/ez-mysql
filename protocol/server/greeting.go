@@ -72,7 +72,7 @@ MySQL Protocol
 */
 
 type Greeting struct {
-	Protocol             byte
+	Protocol             uint8
 	Version              string
 	ThreadId             uint32
 	Salt                 []byte
@@ -90,40 +90,32 @@ type Greeting struct {
 
 func (packet *Greeting) Build() []byte {
 	buffer := bytes.NewBuffer([]byte{})
-	buffer.WriteByte(packet.Protocol)
-	buffer.WriteString(packet.Version)
-	buffer.WriteByte(0)
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ThreadId))[0:4])
-	buffer.Write(packet.Salt[:])
-	buffer.WriteByte(0)
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ServerCapabilities))[0:2])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ServerLanguage))[0:1])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ServerStatus))[0:2])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ExtendedServerStatus))[0:2])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ExtendedSaltLength))[0:1])
-	buffer.Write(packet.Reverse[:])
-	buffer.Write(packet.ExtendedSalt)
-	// write the salt end of 0
-	buffer.WriteByte(0)
-	buffer.WriteString(packet.AuthenticationPlugin)
-	buffer.WriteByte(0)
+	utils.WriteInteger(buffer, 1, uint64(packet.Protocol))
+	utils.WriteNullTerminatedString(buffer, packet.Version)
+	utils.WriteInteger(buffer, 4, uint64(packet.ThreadId))
+	utils.WriteNullTerminatedString(buffer, string(packet.Salt))
+	utils.WriteInteger(buffer, 2, uint64(packet.ServerCapabilities))
+	utils.WriteInteger(buffer, 1, uint64(packet.ServerLanguage))
+	utils.WriteInteger(buffer, 2, uint64(packet.ServerStatus))
+	utils.WriteInteger(buffer, 2, uint64(packet.ExtendedServerStatus))
+	utils.WriteInteger(buffer, 1, uint64(packet.ExtendedSaltLength))
+	utils.WriteRepeat(buffer, []byte{0}, 10)
+	utils.WriteNullTerminatedString(buffer, string(packet.ExtendedSalt))
+	utils.WriteNullTerminatedString(buffer, packet.AuthenticationPlugin)
 	return buffer.Bytes()
 }
 
 func (packet *Greeting) Resolve(byteSlice []byte) {
 	buffer := bytes.NewBuffer(byteSlice)
-	packet.Protocol = buffer.Next(1)[0]
-	version, _ := buffer.ReadString(0)
-	packet.Version = version[:len(version)-1]
-	packet.ThreadId = uint32(utils.ByteSliceToInt(buffer.Next(32 / 8)))
-	packet.Salt = buffer.Next(8)
-	// skip padding 1byte 0x00
-	buffer.Next(1)
-	packet.ServerCapabilities = uint16(utils.ByteSliceToInt(buffer.Next(16 / 8)))
-	packet.ServerLanguage = uint8(utils.ByteSliceToInt(buffer.Next(8 / 8)))
-	packet.ServerStatus = uint16(utils.ByteSliceToInt(buffer.Next(16 / 8)))
-	packet.ExtendedServerStatus = uint16(utils.ByteSliceToInt(buffer.Next(16 / 8)))
-	packet.ExtendedSaltLength = uint8(utils.ByteSliceToInt(buffer.Next(8 / 8)))
+	packet.Protocol = uint8(utils.ReadInteger(buffer, 1))
+	packet.Version = utils.ReadNullTerminatedString(buffer)
+	packet.ThreadId = uint32(utils.ReadInteger(buffer, 4))
+	packet.Salt = []byte(utils.ReadNullTerminatedString(buffer))
+	packet.ServerCapabilities = uint16(utils.ReadInteger(buffer, 2))
+	packet.ServerLanguage = uint8(utils.ReadInteger(buffer, 1))
+	packet.ServerStatus = uint16(utils.ReadInteger(buffer, 2))
+	packet.ExtendedServerStatus = uint16(utils.ReadInteger(buffer, 2))
+	packet.ExtendedSaltLength = uint8(utils.ReadInteger(buffer, 1))
 	packet.Reverse = buffer.Next(10)
 	// packet.ExtendedSaltLength - 8 - 1, skip the end of 0
 	packet.ExtendedSalt = buffer.Next(int(packet.ExtendedSaltLength - 8 - 1))
