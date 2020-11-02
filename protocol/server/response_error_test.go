@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestBuild(t *testing.T) {
+func TestResponseErrorBuild(t *testing.T) {
 	input := new(ResponseError)
 	input.ResponseCode = 0xff
 	input.ErrorCode = 1054
@@ -29,7 +29,7 @@ func TestBuild(t *testing.T) {
 	}
 }
 
-func TestResolve(t *testing.T) {
+func TestResponseErrorResolve(t *testing.T) {
 	input := []byte{
 		0xff, 0x1e, 0x04, 0x23, 0x34, 0x32, 0x53, 0x32,
 		0x32, 0x55, 0x6e, 0x6b, 0x6e, 0x6f, 0x77, 0x6e,
@@ -41,7 +41,7 @@ func TestResolve(t *testing.T) {
 	}
 
 	actual := new(ResponseError)
-	actual.Resolve(input, 49)
+	actual.Resolve(input)
 
 	except := new(ResponseError)
 	except.ResponseCode = 0xff

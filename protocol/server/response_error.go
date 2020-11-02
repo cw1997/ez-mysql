@@ -30,20 +30,20 @@ type ResponseError struct {
 
 func (packet *ResponseError) Build() []byte {
 	buffer := bytes.NewBuffer([]byte{})
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ResponseCode))[0:1])
-	buffer.Write(utils.IntToByteSlice(uint64(packet.ErrorCode))[0:2])
+	utils.WriteInteger(buffer, 1, uint64(packet.ResponseCode))
+	utils.WriteInteger(buffer, 2, uint64(packet.ErrorCode))
 	buffer.Write([]byte("#",))
 	buffer.Write(packet.SQLState)
 	buffer.WriteString(packet.Errormessage)
 	return buffer.Bytes()
 }
 
-func (packet *ResponseError) Resolve(byteSlice []byte, length uint32) {
+func (packet *ResponseError) Resolve(byteSlice []byte) {
 	buffer := bytes.NewBuffer(byteSlice)
-	packet.ResponseCode = uint8(utils.ByteSliceToInt(buffer.Next(8 / 8)))
-	packet.ErrorCode = uint16(utils.ByteSliceToInt(buffer.Next(16 / 8)))
+	packet.ResponseCode = uint8(utils.ReadInteger(buffer, 1))
+	packet.ErrorCode = uint16(utils.ReadInteger(buffer, 2))
 	// skip '#'
 	buffer.Next(1)
 	packet.SQLState = buffer.Next(5)
-	packet.Errormessage = string(buffer.Next(int(length - 1 - 1 - 2 - 5)))
+	packet.Errormessage = string(buffer.Next(len(byteSlice)))
 }
