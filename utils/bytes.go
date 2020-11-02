@@ -95,3 +95,9 @@ func WriteLengthCodedBinary(buffer *bytes.Buffer, byteSlice []byte) {
 	}
 	buffer.Write(byteSlice)
 }
+
+func WriteRepeat(buffer *bytes.Buffer, byteSlice []byte, count int) {
+	for i := 0; i < count; i++ {
+		buffer.Write(byteSlice)
+	}
+}
