@@ -3,6 +3,10 @@ package protocol
 import (
 	"../utils"
 	"bytes"
+	"fmt"
+	"io"
+	"log"
+	"net"
 )
 
 const (
@@ -49,3 +53,45 @@ func (packet *MySQLMessage)Resolve(byteSlice []byte) {
 	packet.Header.SequenceId = uint8(utils.ReadInteger(buffer, sequenceIdSize))
 	packet.Payload = buffer.Next(int(packet.Header.PayloadLength))
 }
+
+func ReadMySQLMessage(conn net.Conn) (header *Header, payload []byte, err error) {
+	buffer := make([]byte, 4)
+	n, err := io.ReadFull(conn, buffer)
+	if err != nil {
+		log.Println("io.ReadFull(conn, buffer) read header: ", n, err)
+		return
+	}
+
+	header = new(Header)
+	header.Resolve(buffer)
+	payloadLength := header.PayloadLength
+
+	fmt.Printf("ReadMySQLMessage\t-> header: %+v \n", header)
+
+	payload = make([]byte, payloadLength)
+	n, err = io.ReadFull(conn, payload)
+	if err != nil {
+		log.Println("io.ReadFull(conn, buffer) read payload: ", n, err)
+		return
+	}
+	return
+}
+
+func WriteMySQLMessage(conn net.Conn, payload []byte, sequenceId uint8) (n int, err error) {
+	header := new(Header)
+	header.PayloadLength = uint32(len(payload))
+	header.SequenceId = sequenceId
+
+	fmt.Printf("WriteMySQLMessage\t-> header: %+v \n", header)
+
+	n, err = conn.Write(header.Build())
+	if err != nil {
+		return
+	}
+	n, err = conn.Write(payload)
+	if err != nil {
+		return
+	}
+	return
+}
+
