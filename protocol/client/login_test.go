@@ -100,7 +100,7 @@ func TestLoginResolve(t *testing.T) {
 	}
 
 	actual := new(Login)
-	actual.Resolve(input, 178)
+	actual.Resolve(input)
 
 	except := new(Login)
 	except.ClientCapabilities = 0xa685

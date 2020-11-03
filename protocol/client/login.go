@@ -110,7 +110,7 @@ func (packet *Login) Build() []byte {
 	return buffer.Bytes()
 }
 
-func (packet *Login) Resolve(byteSlice []byte, length uint32) {
+func (packet *Login) Resolve(byteSlice []byte) {
 	buffer := bytes.NewBuffer(byteSlice)
 	packet.ClientCapabilities = uint16(utils.ReadInteger(buffer, 2))
 	packet.ExtendedClientCapabilities = uint16(utils.ReadInteger(buffer, 2))
