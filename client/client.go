@@ -3,12 +3,11 @@ package client
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"net"
 
 	"../protocol"
-	. "../protocol/client"
+	"../protocol/client"
 	"../protocol/server"
 	"../utils"
 )
@@ -26,17 +25,17 @@ func handleResponse(conn net.Conn, username string, password string) {
 	//conn.Write([]byte("welcome to my mysql"))
 	//packet := protocol.ReadPacket(conn)
 
-	header, payload, _ := readMySQLMessage(conn)
+	header, payload, _ := protocol.ReadMySQLMessage(conn)
 	fmt.Println("header", header)
 
 	greeting := new(server.Greeting)
 	greeting.Resolve(payload)
 	fmt.Printf("%+v \n", greeting)
 
-	login := new(Login)
+	login := new(client.Login)
 	log.Println(greeting.Salt, greeting.ExtendedSalt)
 	scramble := append(greeting.Salt, greeting.ExtendedSalt...)
-	scramblePassword := MysqlNativePassword(scramble, password)
+	scramblePassword := client.MysqlNativePassword(scramble, password)
 	login.ClientCapabilities = 0xa685
 	login.ExtendedClientCapabilities = 0x007f
 	login.MAXPacket = 1073741824
@@ -62,52 +61,18 @@ func handleResponse(conn net.Conn, username string, password string) {
 	}
 
 	fmt.Printf("login: %+v %+v \n", login, login.Build())
-	writeMySQLMessage(conn, login.Build())
+
+	sequence := header.SequenceId + 1
+	protocol.WriteMySQLMessage(conn, login.Build(), sequence)
 
 	for {
-		header, payload, err := readMySQLMessage(conn)
+		header, payload, err := protocol.ReadMySQLMessage(conn)
 		if err != nil {
 			break
 		}
 		fmt.Printf("header: %+v , payload: %+v \n", header, payload)
 		ResolveResponse(payload)
 	}
-}
-
-func readMySQLMessage(conn net.Conn) (header *protocol.Header, payload []byte, err error) {
-	buffer := make([]byte, 4)
-	n, err := io.ReadFull(conn, buffer)
-	if err != nil {
-		log.Println("io.ReadFull(conn, buffer) read header: ", n, err)
-		return
-	}
-
-	header = new(protocol.Header)
-	header.Resolve(buffer)
-	payloadLength := header.PayloadLength
-
-	payload = make([]byte, payloadLength)
-	n, err = io.ReadFull(conn, payload)
-	if err != nil {
-		log.Println("io.ReadFull(conn, buffer) read payload: ", n, err)
-		return
-	}
-	return
-}
-
-func writeMySQLMessage(conn net.Conn, payload []byte) (n int, err error) {
-	header := new(protocol.Header)
-	header.PayloadLength = uint32(len(payload))
-	header.SequenceId = 1
-	n, err = conn.Write(header.Build())
-	if err != nil {
-		return
-	}
-	n, err = conn.Write(payload)
-	if err != nil {
-		return
-	}
-	return
 }
 
 func ResolveResponse(byteSlice []byte) {
