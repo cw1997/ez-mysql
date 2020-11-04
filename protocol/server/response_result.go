@@ -162,11 +162,98 @@ func (packet *ResponseField) Resolve(sliceByte []byte) {
 	//}
 }
 
-//type ResponseEOF struct {
-//	EOFMarker uint8
-//	Warnings
-//}
+/**
+Frame 106: 143 bytes on wire (1144 bits), 143 bytes captured (1144 bits) on interface \Device\NPF_{BAE96026-D11F-49BB-85DB-B449B9D765C2}, id 0
+Null/Loopback
+Internet Protocol Version 4, Src: 127.0.0.1, Dst: 127.0.0.1
+Transmission Control Protocol, Src Port: 3306, Dst Port: 12207, Seq: 94, Ack: 122, Len: 99
+MySQL Protocol
+    Packet Length: 1
+    Packet Number: 1
+    Number of fields: 1
+MySQL Protocol
+    Packet Length: 39
+    Packet Number: 2
+    Catalog: def
+    Database:
+    Table:
+    Original table:
+    Name: @@version_comment
+    Original name:
+    Charset number: utf8 COLLATE utf8_general_ci (33)
+    Length: 84
+    Type: FIELD_TYPE_VAR_STRING (253)
+    Flags: 0x0000
+    Decimals: 31
+MySQL Protocol
+    Packet Length: 5
+    Packet Number: 3
+    Response Code: EOF Packet (0xfe)
+    EOF marker: 254
+    Warnings: 0
+    Server Status: 0x0002
+        .... .... .... ...0 = In transaction: Not set
+        .... .... .... ..1. = AUTO_COMMIT: Set
+        .... .... .... .0.. = Multi query / Unused: Not set
+        .... .... .... 0... = More results: Not set
+        .... .... ...0 .... = Bad index used: Not set
+        .... .... ..0. .... = No index used: Not set
+        .... .... .0.. .... = Cursor exists: Not set
+        .... .... 0... .... = Last row sent: Not set
+        .... ...0 .... .... = Database dropped: Not set
+        .... ..0. .... .... = No backslash escapes: Not set
+        .... .0.. .... .... = Metadata changed: Not set
+        .... 0... .... .... = Query was slow: Not set
+        ...0 .... .... .... = PS Out Params: Not set
+        ..0. .... .... .... = In Trans Readonly: Not set
+        .0.. .... .... .... = Session state changed: Not set
+MySQL Protocol
+    Packet Length: 29
+    Packet Number: 4
+    text: MySQL Community Server (GPL)
+MySQL Protocol
+    Packet Length: 5
+    Packet Number: 5
+    Response Code: EOF Packet (0xfe)
+    EOF marker: 254
+    Warnings: 0
+    Server Status: 0x0002
+
+ */
+
+type ResponseEOF struct {
+	ResponseCode uint8
+	EOFMarker uint8
+	Warnings uint16
+	ServerStatus uint16
+}
+
+func (packet *ResponseEOF) Build() []byte {
+	buffer := bytes.NewBuffer([]byte{})
+	utils.WriteInteger(buffer, 1, ResponseCodeEOF)
+	utils.WriteInteger(buffer, 2, uint64(packet.Warnings))
+	utils.WriteInteger(buffer, 2, uint64(packet.ServerStatus))
+	return buffer.Bytes()
+}
+
+func (packet *ResponseEOF) Resolve(byteSlice []byte) {
+	panic("implement me")
+}
 
 type ResponseRowData struct {
-	text []string
+	Text []string
 }
+
+func (packet *ResponseRowData) Build() []byte {
+	buffer := bytes.NewBuffer([]byte{})
+	texts := packet.Text
+	for _, v := range texts {
+		utils.WriteLengthCodedBinary(buffer, []byte(v))
+	}
+	return buffer.Bytes()
+}
+
+func (packet *ResponseRowData) Resolve(byteSlice []byte) {
+	panic("implement me")
+}
+
