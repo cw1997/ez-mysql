@@ -1,106 +1,126 @@
 package utils
 
 import (
-	"bytes"
+	"reflect"
 	"testing"
 )
 
+
 func TestByteSliceToInt(t *testing.T) {
-	type TestCase struct {
-		input []byte
-		except int
+	type args struct {
+		byteSlice []byte
 	}
-	testCase := []TestCase{
+	tests := []struct {
+		name string
+		args args
+		want uint64
+	}{
 		{
-			input: []byte{76,0,},
-			except: 76,
+			"TestByteSliceToInt",
+			args{[]byte{76,},},
+			76,
 		},
 		{
-			input: []byte{76,},
-			except: 76,
+			"TestByteSliceToInt",
+			args{[]byte{76,0,},},
+			76,
 		},
 		{
-			input: []byte{76,0,0,0,},
-			except: 76,
+			"TestByteSliceToInt",
+			args{[]byte{76,0,0,0,},},
+			76,
 		},
 		{
-			input: []byte{76,0,0,0,0,0,0,0,},
-			except: 76,
+			"TestByteSliceToInt",
+			args{[]byte{76,0,0,0,0,0,0,0,},},
+			76,
 		},
 		{
-			input: []byte{76,0,0,0,0,0,0,0,},
-			except: 76,
-		},
-
-		{
-			input: []byte{1,0,0,0,0,0,0,0,},
-			except: 1,
+			"TestByteSliceToInt",
+			args{[]byte{76,0,0,0,0,0,0,0,},},
+			76,
 		},
 		{
-			input: []byte{1,1,0,0,0,0,0,0,},
-			except: 1 + 256,
+			"TestByteSliceToInt",
+			args{[]byte{1,0,0,0,0,0,0,0,},},
+			1,
 		},
 		{
-			input: []byte{1,1,1,0,0,0,0,0,},
-			except: 1 + 256 + 65536,
+			"TestByteSliceToInt",
+			args{[]byte{1,1,0,0,0,0,0,0,},},
+			1 + 256,
+		},
+		{
+			"TestByteSliceToInt",
+			args{[]byte{1,1,1,0,0,0,0,0,},},
+			1 + 256 + 65536,
 		},
 	}
-
-	for _, v := range testCase {
-		actual := ByteSliceToInt(v.input)
-		except := uint64(v.except)
-		if actual != except {
-			t.Errorf("input: [%+v], actual: [%+v], except: [%+v] \n", v.input, actual, except)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ByteSliceToInt(tt.args.byteSlice); got != tt.want {
+				t.Errorf("ByteSliceToInt() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
 
 func TestIntToByteSlice(t *testing.T) {
-	type TestCase struct {
-		input int
-		except []byte
+	type args struct {
+		num uint64
 	}
-	testCase := []TestCase{
-		{
-			input: 76,
-			except: []byte{76,0,0,0,0,0,0,0,},
-		},
-		{
-			input: 76,
-			except: []byte{76,0,0,0,0,0,0,0,},
-		},
-		{
-			input: 76,
-			except: []byte{76,0,0,0,0,0,0,0,},
-		},
-		{
-			input: 76,
-			except: []byte{76,0,0,0,0,0,0,0,},
-		},
-		{
-			input: 76,
-			except: []byte{76,0,0,0,0,0,0,0,},
-		},
+	tests := []struct {
+		name string
+		args args
+		want []byte
+	}{
 
 		{
-			input: 1,
-			except: []byte{1,0,0,0,0,0,0,0,},
+			"TestIntToByteSlice",
+			args{76},
+			[]byte{76,0,0,0,0,0,0,0,},
 		},
 		{
-			input: 1 + 256,
-			except: []byte{1,1,0,0,0,0,0,0,},
+			"TestIntToByteSlice",
+			args{76},
+			[]byte{76,0,0,0,0,0,0,0,},
 		},
 		{
-			input: 1 + 256 + 65536,
-			except: []byte{1,1,1,0,0,0,0,0,},
+			"TestIntToByteSlice",
+			args{76},
+			[]byte{76,0,0,0,0,0,0,0,},
+		},
+		{
+			"TestIntToByteSlice",
+			args{76},
+			[]byte{76,0,0,0,0,0,0,0,},
+		},
+		{
+			"TestIntToByteSlice",
+			args{76},
+			[]byte{76,0,0,0,0,0,0,0,},
+		},
+		{
+			"TestIntToByteSlice",
+			args{1},
+			[]byte{1,0,0,0,0,0,0,0,},
+		},
+		{
+			"TestIntToByteSlice",
+			args{1 + 256},
+			[]byte{1,1,0,0,0,0,0,0,},
+		},
+		{
+			"TestIntToByteSlice",
+			args{1 + 256 + 65536},
+			[]byte{1,1,1,0,0,0,0,0,},
 		},
 	}
-
-	for _, v := range testCase {
-		actual := IntToByteSlice(uint64(v.input))
-		except := v.except
-		if !bytes.Equal(actual, except) {
-			t.Errorf("input: [%+v], actual: [%+v], except: [%+v] \n", v.input, actual, except)
-		}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IntToByteSlice(tt.args.num); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("IntToByteSlice() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
