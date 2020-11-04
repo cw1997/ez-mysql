@@ -38,7 +38,7 @@ func handleRequest(conn net.Conn, threadId uint32) {
 
 	greeting := new(server.Greeting)
 	greeting.Protocol = 10
-	greeting.Version = "5.7.30-log"
+	greeting.Version = Version // "5.7.30-log"
 	greeting.ThreadId = threadId
 	salt := builderSalt()
 	greeting.Salt = salt[:8]
@@ -83,7 +83,48 @@ func handleRequest(conn net.Conn, threadId uint32) {
 		if err != nil {
 			break
 		}
-		//fmt.Printf("header: %+v , payload: %+v \n", header, payload)
+		fmt.Printf("header: %+v , payload: %+v \n", header, payload)
+		fmt.Printf("header: %+v \n", header)
+		request := new(client.Request)
+		request.Resolve(payload)
+		switch request.Command {
+		case client.COM_QUERY:
+			fieldNum := 1
+			sequenceId = 1
+			protocol.WriteMySQLMessage(conn, []byte{byte(fieldNum)}, sequenceId)
+
+			field := new(server.ResponseField)
+			field.Catalog = "def"
+			field.Database = ""
+			field.Table = ""
+			field.OriginalTable = ""
+			field.Name = "@@version_comment"
+			field.OriginalName = "@@version_comment"
+			field.CharsetNumber = 33
+			field.Length = 84
+			field.Type = 253
+			field.Flags = 0x0000
+			field.Decimals = 31
+			sequenceId++
+			protocol.WriteMySQLMessage(conn, field.Build(), sequenceId)
+
+			responseEOFField := new(server.ResponseEOF)
+			responseEOFField.Warnings = 0
+			responseEOFField.ServerStatus = 0x0002
+			sequenceId++
+			protocol.WriteMySQLMessage(conn, responseEOFField.Build(), sequenceId)
+
+			rowData := new(server.ResponseRowData)
+			rowData.Text = append(rowData.Text, VersionComment)
+			sequenceId++
+			protocol.WriteMySQLMessage(conn, rowData.Build(), sequenceId)
+
+			responseEOFRow := new(server.ResponseEOF)
+			responseEOFRow.Warnings = 0
+			responseEOFRow.ServerStatus = 0x0002
+			sequenceId++
+			protocol.WriteMySQLMessage(conn, responseEOFRow.Build(), sequenceId)
+		}
 	}
 }
 
